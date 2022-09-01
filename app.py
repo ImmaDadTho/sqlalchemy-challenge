@@ -37,7 +37,6 @@ def home():
         f"<center><em>/api/v1.0/precipitation</em></center>"
         f"<center><em>/api/v1.0/stations</em></center>"
         f"<center><em>/api/v1.0/tobs</em></center>"
-        f"<center><em>/api/v1.0/precipitation</em></center>"
         f"<center><em>/api/v1.0/start/end</em></center>"
         )
 
@@ -80,6 +79,37 @@ def TOBS():
     toblist = list(np.ravel(tob))
 
     return jsonify(toblist)
+
+@app.route("/api/v1.0/<start>")
+@app.route("/api/v1.0/<start>/<end>")
+def datestats(start = None, end= None):
+
+    selection = [func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)]
+
+    if not end:
+        startdate = dt.datetime.strptime(start, "%m%d%y")
+
+        dates = session.query(*selection).filter(Measurement.date >= startdate).all()
+
+        session.close()
+        
+        toblist = list(np.ravel(dates))
+
+        return jsonify(toblist)
+
+    else:
+
+        startdate = dt.datetime.strptime(start, "%m%d%y")
+        enddate = dt.datetime.strptime(end, "%m%d%y")
+
+        dates = session.query(*selection).filter(Measurement.date >= startdate)\
+            .filter(Measurement.date <= enddate).all()
+
+        session.close()
+        
+        toblist = list(np.ravel(dates))
+
+        return jsonify(toblist)
 
 
 if __name__ == '__main__':
