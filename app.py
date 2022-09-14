@@ -87,7 +87,8 @@ def datestats(start = None, end= None):
     selection = [func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)]
 
     if not end:
-        startdate = dt.datetime.strptime(start, "%m%d%y")
+
+        startdate = dt.datetime.strptime(start, "%m%d%Y")
 
         dates = session.query(*selection).filter(Measurement.date >= startdate).all()
 
@@ -102,15 +103,16 @@ def datestats(start = None, end= None):
         startdate = dt.datetime.strptime(start, "%m%d%y")
         enddate = dt.datetime.strptime(end, "%m%d%y")
 
-        dates = session.query(*selection).filter(Measurement.date >= startdate)\
+        dates = session.query(*selection)\
+            .filter(Measurement.date >= startdate)\
             .filter(Measurement.date <= enddate).all()
 
         session.close()
-        
+            
         toblist = list(np.ravel(dates))
 
         return jsonify(toblist)
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
